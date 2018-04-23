@@ -2,35 +2,40 @@
 
 use std::collections::HashMap;
 
-type FieldSize = usize;
+/// The size of a single bit field.
+pub type FieldSize = usize;
+/// The name of a bit field.
+pub type FieldName = String;
 
-/// Data size and type of a single bitfield component.
-#[derive(Debug)]
-pub enum ValueType {
-    /// One-bit boolean - 1 is true, 0 is false.
-    Boolean,
-    /// An unsigned integer field with a particular size.
-    Integer(FieldSize),
-    /// An enumeration with a particular size and value-name mapping.
-    Enum(FieldSize, HashMap<usize, String>)
-}
-
-/// A single component of the bitfield.
-#[derive(Debug)]
-pub struct Value {
-    /// The name of the component.
-    pub name: String,
-    /// The type of the field.
-    pub field_type: ValueType,
-}
-
-/// A value or reserved space. Reserved is separated since a reserved field has no name.
+/// A bit field.
 #[derive(Debug)]
 pub enum Field {
     /// Reserved/unused field with the given width
     Reserved(FieldSize),
-    /// A value
-    Value(Value),
+    /// One-bit boolean - 1 is true, 0 is false.
+    Boolean(FieldName),
+    /// An unsigned integer field with the given width.
+    Integer(FieldName, FieldSize),
+    /// An enumeration with a particular size and value-name mapping.
+    Enum(FieldName, FieldSize, HashMap<usize, String>),
+}
+
+impl Field {
+    /// Get the size in bits.
+    ///
+    /// ```
+    /// use bitter::Field;
+    /// let res_act : Field = Field::Boolean("res_act".into());
+    /// assert_eq!(res_act.size(), 1);
+    /// ```
+    pub fn size(&self) -> FieldSize {
+        match self {
+            &Field::Reserved(n) => n,
+            &Field::Boolean(_) => 1,
+            &Field::Integer(_, n) => n,
+            &Field::Enum(_, n, _) => n,
+        }
+    }
 }
 
 /// A type made up of bit fields
@@ -40,4 +45,52 @@ pub struct Structure {
     pub name: String,
     /// List of components, starting with the most significant bits
     pub fields: Vec<Field>,
+}
+
+impl Structure {
+    /// Create a new Structure with the given name.
+    pub fn new(name: &str) -> Structure {
+        Structure { name: name.into(), fields: Vec::new() }
+    }
+
+    /// Get the size of all the fields combined. This is distinct from the size of the (integer)
+    /// value the structure is created from.
+    ///
+    /// ```
+    /// use bitter::{Structure, Field};
+    ///
+    /// let mut reg = Structure::new("reg");
+    /// reg.fields.push(Field::Boolean("res_act".into()));
+    /// reg.fields.push(Field::Reserved(4));
+    ///
+    /// assert_eq!(reg.size(), 5);
+    /// ```
+    pub fn size(&self) -> FieldSize {
+        self.fields.iter().fold(0, |acc, field| acc + field.size())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fieldsize_reserved() {
+        assert_eq!(Field::Reserved(4).size(), 4);
+    }
+
+    #[test]
+    fn fieldsize_bool() {
+        assert_eq!(Field::Boolean("Any".into()).size(), 1);
+    }
+
+    #[test]
+    fn fieldsize_integer() {
+        assert_eq!(Field::Integer("Any".into(), 14).size(), 14);
+    }
+
+    #[test]
+    fn fieldsize_enum() {
+        assert_eq!(Field::Enum("Any".into(), 36, HashMap::new()).size(), 36);
+    }
 }
