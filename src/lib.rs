@@ -2,6 +2,10 @@
 
 //! A crate for reading bitfields that are defined at runtime.
 
+pub mod types;
+
+pub use types::*;
+
 #[cfg(test)]
 mod tests {
     #[test]
