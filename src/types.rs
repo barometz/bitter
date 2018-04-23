@@ -1,4 +1,4 @@
-//! Types used to describe bitfields.
+//! Types used to describe bitfields. These describe structure and do not hold any actual values.
 
 use std::collections::HashMap;
 
@@ -6,9 +6,11 @@ use std::collections::HashMap;
 pub type FieldSize = usize;
 /// The name of a bit field.
 pub type FieldName = String;
+/// A mapping between enum values and descriptions
+pub type EnumMapping = HashMap<usize, String>;
 
 /// A bit field.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Field {
     /// Reserved/unused field with the given width
     Reserved(FieldSize),
@@ -17,10 +19,30 @@ pub enum Field {
     /// An unsigned integer field with the given width.
     Integer(FieldName, FieldSize),
     /// An enumeration with a particular size and value-name mapping.
-    Enum(FieldName, FieldSize, HashMap<usize, String>),
+    Enum(FieldName, FieldSize, EnumMapping),
 }
 
 impl Field {
+    /// Create a new Field::Reserved.
+    pub fn reserved(size: FieldSize) -> Field {
+        Field::Reserved(size)
+    }
+
+    /// Create a new Field::Boolean
+    pub fn boolean(name: &str) -> Field {
+        Field::Boolean(name.into())
+    }
+
+    /// Create a new Field::Integer
+    pub fn integer(name: &str, size: FieldSize) -> Field {
+        Field::Integer(name.into(), size)
+    }
+
+    /// Create a new Field::Enum
+    pub fn enumeration(name: &str, size: FieldSize, map: EnumMapping) -> Field {
+        Field::Enum(name.into(), size, map)
+    }
+
     /// Get the size in bits.
     ///
     /// ```
@@ -38,7 +60,7 @@ impl Field {
     }
 }
 
-/// A type made up of bit fields
+/// A type made up of bit fields.
 #[derive(Debug)]
 pub struct Structure {
     /// The name of the structure. Generally the name of the represented register.
@@ -49,11 +71,16 @@ pub struct Structure {
 
 impl Structure {
     /// Create a new Structure with the given name.
-    pub fn new(name: &str) -> Structure {
+    pub fn new(name: &str, fields: &[Field]) -> Structure {
         Structure {
             name: name.into(),
-            fields: Vec::new(),
+            fields: fields.into(),
         }
+    }
+
+    /// Append a field to an existing Structure. The new field becomes the least-significant one.
+    pub fn append(&mut self, field: Field) {
+        self.fields.push(field);
     }
 
     /// Get the size of all the fields combined. This is distinct from the size of the (integer)
@@ -62,7 +89,7 @@ impl Structure {
     /// ```
     /// use bitter::{Structure, Field};
     ///
-    /// let mut reg = Structure::new("reg");
+    /// let mut reg = Structure::new("reg", &[]);
     /// reg.fields.push(Field::Boolean("res_act".into()));
     /// reg.fields.push(Field::Reserved(4));
     ///
@@ -95,5 +122,25 @@ mod tests {
     #[test]
     fn fieldsize_enum() {
         assert_eq!(Field::Enum("Any".into(), 36, HashMap::new()).size(), 36);
+    }
+
+    #[test]
+    fn structure_empty() {
+        assert_eq!(Structure::new("Any", &[]).size(), 0);
+    }
+
+    #[test]
+    fn structure_with_fields() {
+        assert_eq!(
+            8,
+            Structure::new(
+                "Any",
+                &[
+                    Field::boolean("bob"),
+                    Field::reserved(4),
+                    Field::integer("jim", 3)
+                ],
+            ).size()
+        )
     }
 }
