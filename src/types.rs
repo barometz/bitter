@@ -29,11 +29,11 @@ impl Field {
     /// assert_eq!(res_act.size(), 1);
     /// ```
     pub fn size(&self) -> FieldSize {
-        match self {
-            &Field::Reserved(n) => n,
-            &Field::Boolean(_) => 1,
-            &Field::Integer(_, n) => n,
-            &Field::Enum(_, n, _) => n,
+        match *self {
+            Field::Reserved(n) => n,
+            Field::Boolean(_) => 1,
+            Field::Integer(_, n) => n,
+            Field::Enum(_, n, _) => n,
         }
     }
 }
@@ -50,7 +50,10 @@ pub struct Structure {
 impl Structure {
     /// Create a new Structure with the given name.
     pub fn new(name: &str) -> Structure {
-        Structure { name: name.into(), fields: Vec::new() }
+        Structure {
+            name: name.into(),
+            fields: Vec::new(),
+        }
     }
 
     /// Get the size of all the fields combined. This is distinct from the size of the (integer)
