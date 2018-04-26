@@ -58,9 +58,32 @@ impl Field {
             Field::Enum(_, n, _) => n,
         }
     }
+
+    /// Get the name of the field, unless it's Field::Reserved
+    pub fn get_name(&self) -> Option<String> {
+        match *self {
+            Field::Reserved(_) => None,
+            Field::Boolean(ref name)
+            | Field::Integer(ref name, _)
+            | Field::Enum(ref name, _, _) => Some(name.clone())
+        }
+    }
 }
 
 /// A type made up of bit fields.
+///
+/// ```
+/// use bitter::{Structure, Field};
+///
+/// let reg = Structure::new(
+///    "REG_1",
+///    &[
+///        Field::boolean("bob"),
+///        Field::reserved(4),
+///        Field::integer("jim", 3)
+///    ],
+/// );
+/// ```
 #[derive(Debug)]
 pub struct Structure {
     /// The name of the structure. Generally the name of the represented register.
@@ -97,6 +120,36 @@ impl Structure {
     /// ```
     pub fn size(&self) -> FieldSize {
         self.fields.iter().fold(0, |acc, field| acc + field.size())
+    }
+
+    /// Get the range of bits for the specified field, if it exists.
+    ///
+    /// The resulting range is in downto notation, so (3, 0) means the four least significant bits.
+    ///
+    /// # Example
+    /// ```
+    /// use bitter::{Structure, Field};
+    ///
+    /// let reg = Structure::new("reg", &[
+    ///     Field::integer("lifetime", 4),
+    ///     Field::boolean("active"),
+    /// ]);
+    ///
+    /// assert_eq!(reg.get_range("lifetime"), Some((4, 1)));
+    /// ```
+    pub fn get_range(&self, field_name: &str) -> Option<(usize, usize)> {
+        let mut low : FieldSize = 0;
+        for field in self.fields.iter().rev() {
+            if let Some(name) = field.get_name() {
+                if name == field_name {
+                    return Some((low + field.size() - 1, low))
+                }
+            }
+
+            low = low + field.size()
+        }
+
+        None
     }
 }
 
