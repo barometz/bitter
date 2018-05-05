@@ -7,25 +7,25 @@ fn mask(bits: usize) -> usize {
 }
 
 /// A value, based on an integer and the structure of the bit fields within it.
-pub struct Composite {
+pub struct Value {
     /// The integer data from which the individual bitfield values are derived.
     pub data: usize,
     /// The structure of the data.
     pub structure: types::Structure,
 }
 
-impl Composite {
-    /// Create a new `Composite`
-    pub fn new(data: usize, structure: types::Structure) -> Composite {
-        Composite { data, structure }
+impl Value {
+    /// Create a new `Value`
+    pub fn new(data: usize, structure: types::Structure) -> Value {
+        Value { data, structure }
     }
 
     /// Get an integer value for the given field name, if it exists
     ///
     /// ```
-    /// use bitview::{Structure, Field, Composite};
+    /// use bitview::{Structure, Field, Value};
     ///
-    /// let val = Composite::new(
+    /// let val = Value::new(
     ///     0xFFE5,
     ///     Structure::new("reg", &[
     ///         Field::integer("high_byte_b", 8),
