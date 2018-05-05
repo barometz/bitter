@@ -65,7 +65,7 @@ impl Field {
             Field::Reserved(_) => None,
             Field::Boolean(ref name)
             | Field::Integer(ref name, _)
-            | Field::Enum(ref name, _, _) => Some(name.clone())
+            | Field::Enum(ref name, _, _) => Some(name.clone()),
         }
     }
 }
@@ -138,15 +138,15 @@ impl Structure {
     /// assert_eq!(reg.get_range("lifetime"), Some((4, 1)));
     /// ```
     pub fn get_range(&self, field_name: &str) -> Option<(usize, usize)> {
-        let mut low : FieldSize = 0;
+        let mut low: FieldSize = 0;
         for field in &self.fields {
             if let Some(name) = field.get_name() {
                 if name == field_name {
-                    return Some((low + field.size() - 1, low))
+                    return Some((low + field.size() - 1, low));
                 }
             }
 
-            low = low + field.size()
+            low += field.size()
         }
 
         None
