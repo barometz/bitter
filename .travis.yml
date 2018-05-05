@@ -3,6 +3,8 @@ rust:
   - stable
   - beta
   - nightly
+  - 1.19.0
 matrix:
   allow_failures:
     - rust: nightly
+  fast_finish: true
