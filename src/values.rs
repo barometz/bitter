@@ -3,13 +3,7 @@
 use types;
 
 fn mask(bits: usize) -> usize {
-    let mut mask : usize = 0;
-    for _ in 0 .. bits {
-        mask = mask << 1;
-        mask = mask | 1;
-    }
-
-    mask
+    2_usize.pow(bits as u32) - 1
 }
 
 /// A value, based on an integer and the structure of the bit fields within it.
