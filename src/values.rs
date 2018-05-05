@@ -23,7 +23,7 @@ impl Composite {
     /// Get an integer value for the given field name, if it exists
     ///
     /// ```
-    /// use bitter::{Structure, Field, Composite};
+    /// use bitview::{Structure, Field, Composite};
     ///
     /// let val = Composite::new(
     ///     0xFFE5,

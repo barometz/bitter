@@ -46,7 +46,7 @@ impl Field {
     /// Get the size in bits.
     ///
     /// ```
-    /// use bitter::Field;
+    /// use bitview::Field;
     /// let res_act : Field = Field::Boolean("res_act".into());
     /// assert_eq!(res_act.size(), 1);
     /// ```
@@ -73,7 +73,7 @@ impl Field {
 /// A type made up of bit fields.
 ///
 /// ```
-/// use bitter::{Structure, Field};
+/// use bitview::{Structure, Field};
 ///
 /// let reg = Structure::new(
 ///    "REG_1",
@@ -110,7 +110,7 @@ impl Structure {
     /// value the structure is created from.
     ///
     /// ```
-    /// use bitter::{Structure, Field};
+    /// use bitview::{Structure, Field};
     ///
     /// let mut reg = Structure::new("reg", &[]);
     /// reg.fields.push(Field::Boolean("res_act".into()));
@@ -128,7 +128,7 @@ impl Structure {
     ///
     /// # Example
     /// ```
-    /// use bitter::{Structure, Field};
+    /// use bitview::{Structure, Field};
     ///
     /// let reg = Structure::new("reg", &[
     ///     Field::integer("lifetime", 4),

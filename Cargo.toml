@@ -1,5 +1,5 @@
 [package]
-name = "bitter"
+name = "bitview"
 version = "0.1.0"
 authors = ["Dominic van Berkel <dominic@baudvine.net>"]
 
