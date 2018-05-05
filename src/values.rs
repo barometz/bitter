@@ -28,9 +28,9 @@ impl Value {
     /// let val = Value::new(
     ///     0xFFE5,
     ///     Structure::new("reg", &[
-    ///         Field::integer("high_byte_b", 8),
-    ///         Field::integer("high_nibble_a", 4),
     ///         Field::integer("low_nibble_a", 4),
+    ///         Field::integer("high_nibble_a", 4),
+    ///         Field::integer("high_byte_b", 8),
     ///     ]));
     ///
     /// assert_eq!(val.get_integer("high_nibble_a"), Some(0xE));

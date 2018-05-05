@@ -131,15 +131,15 @@ impl Structure {
     /// use bitview::{Structure, Field};
     ///
     /// let reg = Structure::new("reg", &[
-    ///     Field::integer("lifetime", 4),
     ///     Field::boolean("active"),
+    ///     Field::integer("lifetime", 4),
     /// ]);
     ///
     /// assert_eq!(reg.get_range("lifetime"), Some((4, 1)));
     /// ```
     pub fn get_range(&self, field_name: &str) -> Option<(usize, usize)> {
         let mut low : FieldSize = 0;
-        for field in self.fields.iter().rev() {
+        for field in &self.fields {
             if let Some(name) = field.get_name() {
                 if name == field_name {
                     return Some((low + field.size() - 1, low))
