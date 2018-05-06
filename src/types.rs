@@ -10,7 +10,7 @@ pub type FieldName = String;
 pub type EnumMapping = HashMap<usize, String>;
 
 /// A bit field.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Field {
     /// Reserved/unused field with the given width
     Reserved(FieldSize),
@@ -47,7 +47,7 @@ impl Field {
     ///
     /// ```
     /// use bitview::Field;
-    /// let res_act : Field = Field::Boolean("res_act".into());
+    /// let res_act: Field = Field::Boolean("res_act".into());
     /// assert_eq!(res_act.size(), 1);
     /// ```
     pub fn size(&self) -> FieldSize {
@@ -122,6 +122,32 @@ impl Structure {
         self.fields.iter().fold(0, |acc, field| acc + field.size())
     }
 
+    /// Retrieve a specific field description
+    ///
+    /// ```
+    /// use bitview::{Structure, Field};
+    ///
+    /// let reg = Structure::new("reg", &[
+    ///     Field::boolean("res_act"),
+    ///     Field::integer("rsm", 3),
+    ///     Field::boolean("dbgm"),
+    /// ]);
+    ///
+    /// assert_eq!(reg.get_field("rsm"), Some(Field::integer("rsm", 3)));
+    /// assert_eq!(reg.get_field("intm"), None);
+    /// ```
+pub fn get_field(&self, field_name: &str) -> Option<Field> {
+        for field in &self.fields {
+            if let Some(name) = field.get_name() {
+                if name == field_name {
+                    return Some(field.clone());
+                }
+            }
+        }
+
+        None
+    }
+
     /// Get the range of bits for the specified field, if it exists.
     ///
     /// The resulting range is in downto notation, so (3, 0) means the four least significant bits.
@@ -138,15 +164,17 @@ impl Structure {
     /// assert_eq!(reg.get_range("lifetime"), Some((4, 1)));
     /// ```
     pub fn get_range(&self, field_name: &str) -> Option<(usize, usize)> {
-        let mut low: FieldSize = 0;
-        for field in &self.fields {
-            if let Some(name) = field.get_name() {
-                if name == field_name {
-                    return Some((low + field.size() - 1, low));
-                }
-            }
+        if let Some(field_match) = self.get_field(field_name) {
+            let mut low: FieldSize = 0;
 
-            low += field.size()
+            for field in &self.fields {
+                if *field == field_match {
+                    let high = low + field.size() - 1;
+                    return Some((high, low));
+                }
+
+                low += field.size();
+            }
         }
 
         None
