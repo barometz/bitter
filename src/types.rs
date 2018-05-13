@@ -133,10 +133,10 @@ impl Structure {
     ///     Field::boolean("dbgm"),
     /// ]);
     ///
-    /// assert_eq!(reg.get_field("rsm"), Some(Field::integer("rsm", 3)));
+    /// assert_eq!(reg.get_field("rsm"), Field::integer("rsm", 3));
     /// assert_eq!(reg.get_field("intm"), None);
     /// ```
-pub fn get_field(&self, field_name: &str) -> Option<Field> {
+    pub fn get_field(&self, field_name: &str) -> Option<Field> {
         for field in &self.fields {
             if let Some(name) = field.get_name() {
                 if name == field_name {
