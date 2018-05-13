@@ -133,7 +133,7 @@ impl Structure {
     ///     Field::boolean("dbgm"),
     /// ]);
     ///
-    /// assert_eq!(reg.get_field("rsm"), Field::integer("rsm", 3));
+    /// assert_eq!(reg.get_field("rsm"), Some(Field::integer("rsm", 3)));
     /// assert_eq!(reg.get_field("intm"), None);
     /// ```
     pub fn get_field(&self, field_name: &str) -> Option<Field> {
